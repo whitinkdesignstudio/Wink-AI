@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="./wink_ai.jpg">
+    <title>w'ink ai — Submit Your Files</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --gold: #d4af37;
+            --gold-light: #f0d060;
+            --gold-dark: #a8891c;
+            --black: #080808;
+            --white: #fafafa;
+            --glass: rgba(255, 255, 255, 0.04);
+            --gb: rgba(212, 175, 55, 0.2);
+        }
+
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: var(--black);
+            color: var(--white);
+            font-family: 'DM Sans', sans-serif;
+            overflow-x: hidden;
+            cursor: none;
+        }
+
+        .cursor {
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            mix-blend-mode: difference;
+        }
+
+        .cursor-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--gold);
+            border-radius: 50%;
+            position: fixed;
+            transform: translate(-50%, -50%);
+            transition: width 0.2s, height 0.2s;
+        }
+
+        .cursor-ring {
+            width: 32px;
+            height: 32px;
+            border: 1px solid rgba(212, 175, 55, 0.5);
+            border-radius: 50%;
+            position: fixed;
+            transform: translate(-50%, -50%);
+        }
+
+        @keyframes shimmerBorder {
+            0% {
+                box-shadow: 0 0 0 1px rgba(212, 175, 55, 0.1), 0 0 20px rgba(212, 175, 55, 0)
+            }
+
+            50% {
+                box-shadow: 0 0 0 1px rgba(212, 175, 55, 0.5), 0 0 30px rgba(212, 175, 55, 0.15)
+            }
+
+            100% {
+                box-shadow: 0 0 0 1px rgba(212, 175, 55, 0.1), 0 0 20px rgba(212, 175, 55, 0)
+            }
+        }
+
+        .loader {
+            position: fixed;
+            inset: 0;
+            background: var(--black);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9998;
+            transition: opacity 0.8s, visibility 0.8s;
+        }
+
+        .loader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .loader-logo {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            margin-bottom: 16px;
+        }
+
+        .loader-text {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.8rem;
+            letter-spacing: 0.3em;
+            color: var(--gold);
+        }
+
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 60px;
+            transition: all 0.4s;
+        }
+
+        header.scrolled {
+            background: rgba(8, 8, 8, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 14px 60px;
+            border-bottom: 1px solid var(--gb);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .logo-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 4px;
+            object-fit: contain;
+        }
+
+        .logo-text {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.5rem;
+            letter-spacing: 0.15em;
+            color: var(--gold);
+        }
+
+        nav {
+            display: flex;
+            gap: 32px;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.82rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            transition: color 0.3s;
+        }
+
+        nav a:hover,
+        nav a.active {
+            color: var(--gold);
+        }
+
+        .hact {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .btn-g {
+            background: var(--gold);
+            color: #000;
+            border: none;
+            padding: 9px 22px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            cursor: none;
+            transition: all 0.3s;
+        }
+
+        .btn-g:hover {
+            background: var(--gold-light);
+        }
+
+        .scroll-top {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            z-index: 99;
+            width: 44px;
+            height: 44px;
+            background: var(--gold);
+            color: #000;
+            border: none;
+            font-size: 1.1rem;
+            cursor: none;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+
+        .scroll-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .sec-heading-box {
+            display: inline-block;
+            border: 1px solid rgba(180, 140, 60, 0.35);
+            background: rgba(180, 140, 60, 0.06);
+            padding: 18px 36px 20px;
+            margin-bottom: 32px;
+            position: relative;
+            animation: shimmerBorder 4s ease infinite;
+        }
+
+        .sec-heading-box::before,
+        .sec-heading-box::after {
+            content: '';
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-color: var(--gold);
+            border-style: solid;
+            opacity: 0.7;
+        }
+
+        .sec-heading-box::before {
+            top: -1px;
+            left: -1px;
+            border-width: 2px 0 0 2px;
+        }
+
+        .sec-heading-box::after {
+            bottom: -1px;
+            right: -1px;
+            border-width: 0 2px 2px 0;
+        }
+
+        .s-eye {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1rem;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 12px;
+            white-space: nowrap;
+        }
+
+        .s-eye::before {
+            content: '';
+            width: 24px;
+            height: 1px;
+            background: var(--gold);
+            opacity: 0.5;
+        }
+
+        .s-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(2rem, 4vw, 3.5rem);
+            font-weight: 300;
+            line-height: 1.15;
+        }
+
+        .s-title em {
+            color: var(--gold);
+            font-style: italic;
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.7s cubic-bezier(0.23, 1, 0.32, 1), transform 0.7s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ===== HERO ===== */
+        .submit-hero {
+            padding: 160px 60px 80px;
+            text-align: center;
+            position: relative;
+            background: radial-gradient(ellipse at 50% 0%, rgba(180, 140, 60, 0.08) 0%, transparent 70%);
+            border-bottom: 1px solid var(--gb);
+        }
+
+        .submit-hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(0deg, transparent, transparent 60px, rgba(212, 175, 55, 0.02) 60px, rgba(212, 175, 55, 0.02) 61px), repeating-linear-gradient(90deg, transparent, transparent 60px, rgba(212, 175, 55, 0.02) 60px, rgba(212, 175, 55, 0.02) 61px);
+            pointer-events: none;
+        }
+
+        .submit-hero h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(2.5rem, 6vw, 5rem);
+            font-weight: 300;
+            line-height: 1.15;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .submit-hero h1 em {
+            color: var(--gold);
+            font-style: italic;
+        }
+
+        .submit-hero p {
+            color: rgba(255, 255, 255, 0.45);
+            font-size: 0.95rem;
+            max-width: 520px;
+            margin: 0 auto;
+            line-height: 1.8;
+            position: relative;
+        }
+
+        .scroll-indicator {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+            position: relative;
+        }
+
+        .scroll-indicator-text {
+            font-size: 0.7rem;
+            letter-spacing: 0.35em;
+            text-transform: uppercase;
+            color: rgba(212, 175, 55, 0.5);
+            white-space: nowrap;
+        }
+
+        .scroll-indicator-hand {
+            font-size: 2.2rem;
+            animation: handBounce 1.6s ease-in-out infinite;
+            display: block;
+            line-height: 1;
+        }
+
+        .scroll-indicator-line {
+            width: 3px;
+            background: linear-gradient(to bottom, rgba(212, 175, 55, 0.6), transparent);
+            animation: linePulse 1.6s ease-in-out infinite;
+        }
+
+        @keyframes handBounce {
+
+            0%,
+            100% {
+                transform: translateY(0px);
+                opacity: 0.6
+            }
+
+            50% {
+                transform: translateY(10px);
+                opacity: 1
+            }
+        }
+
+        @keyframes linePulse {
+
+            0%,
+            100% {
+                opacity: 0.3;
+                transform: scaleY(0.8)
+            }
+
+            50% {
+                opacity: 1;
+                transform: scaleY(1)
+            }
+        }
+
+        /* ===== FORM ===== */
+        .form-sec {
+            padding: 80px 0;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* ===== ALT SEND BUTTONS ===== */
+        .alt-send-btn {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 20px 24px;
+            border: 1px solid var(--gb);
+            background: rgba(255, 255, 255, 0.03);
+            text-decoration: none;
+            color: var(--white);
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            cursor: pointer;
+            height: auto;
+            width: 100%;
+            animation: shimmerBorder 5s ease infinite;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .alt-send-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+
+        .alt-send-btn:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 60px rgba(212, 175, 55, 0.15);
+        }
+
+        .alt-send-btn:hover::before {
+            opacity: 1;
+        }
+
+        .alt-send-btn.whatsapp:hover {
+            border-color: #25d366;
+            box-shadow: 0 20px 60px rgba(37, 211, 102, 0.15);
+        }
+
+        .alt-send-btn.email:hover {
+            border-color: #4a90d9;
+            box-shadow: 0 20px 60px rgba(74, 144, 217, 0.15);
+        }
+
+        .alt-send-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: transform 0.3s;
+        }
+
+        .alt-send-btn:hover .alt-send-icon {
+            transform: scale(1.15) rotate(-5deg);
+        }
+
+        .alt-send-btn.whatsapp .alt-send-icon {
+            background: rgba(37, 211, 102, 0.12);
+        }
+
+        .alt-send-btn.email .alt-send-icon {
+            background: rgba(74, 144, 217, 0.12);
+        }
+
+        .alt-send-icon svg {
+            width: 30px;
+            height: 30px;
+        }
+
+        .alt-send-btn.whatsapp .alt-send-icon svg {
+            fill: #25d366;
+        }
+
+        .alt-send-btn.email .alt-send-icon svg {
+            fill: #4a90d9;
+        }
+
+        .alt-send-info {
+            flex: 1;
+        }
+
+        .alt-send-label {
+            font-size: 0.72rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.35);
+            margin-bottom: 5px;
+            white-space: nowrap;
+        }
+
+        .alt-send-main {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--white);
+            margin-bottom: 3px;
+        }
+
+        .alt-send-sub {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.4);
+            line-height: 1.5;
+        }
+
+        .alt-send-arr {
+            color: var(--gold);
+            font-size: 1.1rem;
+            opacity: 0.5;
+            transition: opacity 0.3s, transform 0.3s;
+        }
+
+        .alt-send-btn:hover .alt-send-arr {
+            opacity: 1;
+            transform: translateX(4px);
+        }
+
+        /* ===== FOOTER ===== */
+        footer {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 48px;
+            padding: 60px 60px 40px;
+            border-top: 1px solid var(--gb);
+            background: #050505;
+        }
+
+        .foot-br p {
+            font-size: 0.82rem;
+            color: rgba(255, 255, 255, 0.3);
+            line-height: 1.7;
+            margin-top: 12px;
+        }
+
+        .foot-col h5 {
+            font-size: 0.7rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 16px;
+            white-space: nowrap;
+        }
+
+        .foot-col a {
+            display: block;
+            font-size: 0.82rem;
+            color: rgba(255, 255, 255, 0.4);
+            text-decoration: none;
+            margin-bottom: 10px;
+            transition: color 0.3s, transform 0.2s;
+            white-space: nowrap;
+        }
+
+        .foot-col a:hover {
+            color: var(--gold);
+            transform: translateX(4px);
+        }
+
+        .foot-bot {
+            padding: 20px 60px;
+            border-top: 1px solid var(--gb);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #050505;
+        }
+
+        .foot-bot p {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.25);
+        }
+
+        .foot-social {
+            display: flex;
+            gap: 10px;
+            margin-top: 18px;
+            flex-wrap: wrap;
+        }
+
+        .foot-social a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 38px;
+            height: 38px;
+            border: 1px solid rgba(180, 140, 60, 0.4);
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 50%;
+            text-decoration: none;
+            transition: all 0.3s;
+            color: rgba(255, 255, 255, 0.55);
+        }
+
+        .foot-social a svg {
+            width: 17px;
+            height: 17px;
+            fill: currentColor;
+        }
+
+        .foot-social a:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+            transform: translateY(-4px) scale(1.1);
+            box-shadow: 0 8px 20px rgba(212, 175, 55, 0.2);
+        }
+
+        /* ===== HAMBURGER ===== */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: none;
+            padding: 4px;
+            z-index: 1001;
+        }
+
+        .hamburger span {
+            display: block;
+            width: 24px;
+            height: 2px;
+            background: var(--gold);
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .hamburger.open span:nth-child(1) {
+            transform: translateY(7px) rotate(45deg);
+        }
+
+        .hamburger.open span:nth-child(2) {
+            opacity: 0;
+            transform: scaleX(0);
+        }
+
+        .hamburger.open span:nth-child(3) {
+            transform: translateY(-7px) rotate(-45deg);
+        }
+
+        .mobile-nav {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: min(320px, 85vw);
+            height: 100vh;
+            background: rgba(8, 8, 8, 0.98);
+            backdrop-filter: blur(20px);
+            border-left: 1px solid var(--gb);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            padding: 100px 40px 40px;
+            gap: 8px;
+            transition: right 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .mobile-nav.open {
+            right: 0;
+        }
+
+        .mobile-nav a {
+            font-size: 0.85rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            padding: 14px 0;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.08);
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .mobile-nav a::before {
+            content: '';
+            width: 0;
+            height: 1px;
+            background: var(--gold);
+            transition: width 0.3s;
+        }
+
+        .mobile-nav a:hover,
+        .mobile-nav a.active {
+            color: var(--gold);
+            padding-left: 8px;
+        }
+
+        .mobile-nav a:hover::before,
+        .mobile-nav a.active::before {
+            width: 16px;
+        }
+
+        .mobile-nav-footer {
+            margin-top: auto;
+            padding-top: 24px;
+            border-top: 1px solid var(--gb);
+        }
+
+        .mobile-nav-footer a {
+            display: inline-block;
+            padding: 12px 24px;
+            background: var(--gold);
+            color: #000 !important;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            text-decoration: none;
+            border-bottom: none !important;
+            transition: background 0.3s !important;
+            padding-left: 24px !important;
+        }
+
+        .mobile-nav-footer a:hover {
+            background: var(--gold-light) !important;
+            padding-left: 24px !important;
+        }
+
+        .mobile-nav-footer a::before {
+            display: none !important;
+        }
+
+        .mobile-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s;
+        }
+
+        .mobile-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media(max-width:1200px) {
+            header {
+                padding: 18px 40px;
+            }
+
+            header.scrolled {
+                padding: 14px 40px;
+            }
+        }
+
+        @media(max-width:1024px) {
+            header {
+                padding: 18px 30px;
+            }
+
+            header.scrolled {
+                padding: 14px 30px;
+            }
+
+            footer {
+                grid-template-columns: 1fr 1fr;
+                padding: 40px 30px;
+            }
+
+            .foot-bot {
+                padding: 16px 30px;
+            }
+
+            .submit-hero {
+                padding: 140px 40px 60px;
+            }
+
+            .form-sec {
+                padding: 60px 30px;
+            }
+        }
+
+        @media(max-width:900px) {
+            .hamburger {
+                display: flex;
+            }
+
+            nav {
+                display: none !important;
+            }
+
+            .hact .btn-g:first-child {
+                display: none;
+            }
+
+            header {
+                padding: 16px 20px;
+            }
+
+            header.scrolled {
+                padding: 12px 20px;
+            }
+
+            .submit-hero {
+                padding: 120px 20px 50px;
+            }
+
+            .form-sec {
+                padding: 50px 20px;
+            }
+
+            .alt-send-main {
+                font-size: 0.95rem;
+            }
+
+            .alt-send-sub {
+                font-size: 0.78rem;
+            }
+
+            .alt-send-label {
+                white-space: normal;
+            }
+        }
+
+        @media(max-width:768px) {
+            .hact {
+                gap: 8px;
+            }
+
+            .hact .btn-g {
+                padding: 8px 14px;
+                font-size: 0.7rem;
+                letter-spacing: 0.08em;
+            }
+
+            .submit-hero {
+                padding: 100px 16px 40px;
+            }
+
+            .submit-hero h1 {
+                font-size: clamp(2rem, 7vw, 3rem);
+            }
+
+            .form-sec {
+                padding: 40px 16px;
+            }
+
+            .alt-send-btn {
+                padding: 16px 16px;
+                gap: 12px;
+                flex-wrap: wrap;
+            }
+
+            .alt-send-icon {
+                width: 38px;
+                height: 38px;
+            }
+
+            .alt-send-icon svg {
+                width: 22px;
+                height: 22px;
+            }
+
+            .alt-send-main {
+                font-size: 0.9rem;
+            }
+
+            .alt-send-sub {
+                font-size: 0.75rem;
+            }
+
+            footer {
+                grid-template-columns: 1fr;
+                padding: 40px 20px;
+            }
+
+            .foot-bot {
+                flex-direction: column;
+                gap: 8px;
+                text-align: center;
+                padding: 16px 20px;
+            }
+
+            .scroll-top {
+                bottom: 16px;
+                right: 12px;
+                width: 38px;
+                height: 38px;
+            }
+
+            .sec-heading-box {
+                padding: 14px 20px 16px;
+            }
+
+            .s-eye {
+                white-space: normal;
+                font-size: 0.85rem;
+                letter-spacing: 0.2em;
+            }
+        }
+
+        @media(max-width:500px) {
+            footer {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media(max-width:480px) {
+            .logo-text {
+                font-size: 1.2rem;
+            }
+
+            .logo-img {
+                width: 34px;
+                height: 34px;
+            }
+
+            .hact .btn-g {
+                display: none;
+            }
+
+            header {
+                padding: 14px 16px;
+            }
+
+            .submit-hero {
+                padding: 90px 12px 36px;
+            }
+
+            .submit-hero h1 {
+                font-size: clamp(1.8rem, 7vw, 2.5rem);
+            }
+
+            .form-sec {
+                padding: 32px 12px;
+            }
+
+            .alt-send-btn {
+                padding: 14px 12px;
+                gap: 10px;
+            }
+
+            .alt-send-main {
+                font-size: 0.85rem;
+            }
+
+            footer {
+                padding: 32px 16px;
+            }
+
+            .foot-bot {
+                padding: 14px 16px;
+            }
+
+            .sec-heading-box {
+                padding: 12px 16px 14px;
+                margin-bottom: 20px;
+            }
+
+            .scroll-indicator-hand {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="cursor cursor-dot" id="cursorDot"></div>
+    <div class="cursor cursor-ring" id="cursorRing"></div>
+    <div class="loader" id="loader">
+        <img src="wink_ai.jpg" alt="w'ink ai" class="loader-logo"
+            style="border-radius:50%;object-fit:contain;background:transparent;">
+        <div class="loader-text">w'ink ai</div>
+    </div>
+    <button class="scroll-top" id="stBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">&#8593;</button>
+
+    <header id="hdr">
+        <a href="index.html" class="logo"><img src="wink_ai.jpg" alt="w'ink ai logo" class="logo-img"><span
+                class="logo-text">w'ink ai</span></a>
+        <nav>
+            <a href="index.html">Home</a><a href="categories.html">Categories</a><a href="about.html">About</a>
+            <a href="why-ai.html">Why AI</a><a href="work.html">Work</a><a href="faq.html">FAQ</a>
+            <a href="submit.html" class="active">Submit</a>
+        </nav>
+        <div class="hact">
+            <a href="https://wa.me/+918160511477" target="_blank" class="btn-g" style="text-decoration:none">Contact Us
+                : ☎91 8160511477</a>
+            <button class="btn-g" onclick="window.location.href='https://wa.link/ma8ri7'">Start Now &#10022;</button>
+        </div>
+        <button class="hamburger" id="hamburger" onclick="toggleMenu()"
+            aria-label="Menu"><span></span><span></span><span></span></button>
+    </header>
+    <div class="mobile-overlay" id="mobileOverlay" onclick="toggleMenu()"></div>
+    <div class="mobile-nav" id="mobileNav">
+        <a href="index.html">Home</a><a href="categories.html">Categories</a><a href="about.html">About</a>
+        <a href="why-ai.html">Why AI</a><a href="work.html">Work</a><a href="faq.html">FAQ</a><a href="submit.html"
+            class="active">Submit</a>
+        <div class="mobile-nav-footer"><a href="https://wa.link/ma8ri7" target="_blank">Start Now ✪</a></div>
+    </div>
+
+    <div style="background-image:linear-gradient(rgba(0,0,0,0.5),rgba(0,0,0,0.5)),url('./hero_bg.png');">
+        <section class="submit-hero">
+            <div class="sec-heading-box reveal" style="text-align:center">
+                <div class="s-eye" style="justify-content:center">Upload Your Files</div>
+                <h1>Send Us Your <em>Images &amp; Videos</em></h1>
+            </div>
+            <div class="scroll-indicator reveal">
+                <div class="scroll-indicator-text">Upload Here</div>
+                <span class="scroll-indicator-hand">👇</span>
+                <div class="scroll-indicator-line"></div>
+            </div>
+        </section>
+    </div>
+
+    <section class="form-sec">
+        <div id="submitForm">
+            <a href="https://wa.link/ma8ri7" target="_blank" class="alt-send-btn whatsapp reveal">
+                <div class="alt-send-icon">
+                    <svg viewBox="0 0 24 24">
+                        <path
+                            d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.890-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+                    </svg>
+                </div>
+                <div class="alt-send-info">
+                    <div class="alt-send-label">Instant Chat</div>
+                    <div class="alt-send-main">Send Your Images and Videos via WhatsApp</div>
+                    <div class="alt-send-sub">Tap to open chat &rarr; send your images &amp; videos directly. We respond
+                        within 30 minutes.</div>
+                </div>
+                <div class="alt-send-arr">&#8594;</div>
+            </a>
+
+            <br><br>
+
+            <a href="https://mail.google.com/mail/?view=cm&to=Connect@whiteinkdesignstudio.com"
+                class="alt-send-btn email reveal">
+                <div class="alt-send-icon">
+                    <svg viewBox="0 0 24 24">
+                        <path
+                            d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
+                    </svg>
+                </div>
+                <div class="alt-send-info">
+                    <div class="alt-send-label">Option 2 — Email</div>
+                    <div class="alt-send-main">Send via Email</div>
+                    <div class="alt-send-sub">Click to open your email app — attach your files &amp; send. We reply
+                        within 2 hours.</div>
+                </div>
+                <div class="alt-send-arr">&#8594;</div>
+            </a>
+        </div>
+    </section>
+
+    <footer>
+        <div class="foot-br">
+            <a href="index.html" class="logo" style="margin-bottom:8px;display:inline-flex"><img src="wink_ai.jpg"
+                    alt="w'ink ai logo" class="logo-img" style="width:36px;height:36px;"><span class="logo-text"
+                    style="font-size:1.2rem">w'ink ai</span></a>
+            <p>w'ink ai — AI-Powered Luxury Visual Marketing Studio. One prompt ahead.</p>
+            <div class="foot-social">
+                <a href="https://wa.link/ma8ri7" title="WhatsApp" target="_blank"><svg viewBox="0 0 24 24">
+                        <path
+                            d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.890-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+                    </svg></a>
+                <a href="https://www.instagram.com/whiteinkdesignstudio/" title="Instagram" target="_blank"><svg
+                        viewBox="0 0 24 24">
+                        <path
+                            d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
+                    </svg></a>
+                <a href="https://www.facebook.com/profile.php?id=61583702922129" title="Facebook" target="_blank"><svg
+                        viewBox="0 0 24 24">
+                        <path
+                            d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                    </svg></a>
+                <a href="https://www.linkedin.com/company/the-white-ink-design-studio/" title="LinkedIn"
+                    target="_blank"><svg viewBox="0 0 24 24">
+                        <path
+                            d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.851-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.352V9h3.414v1.561h.049c.476-.9 1.637-1.851 3.369-1.851 3.601 0 4.266 2.369 4.266 5.455v6.287zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.919-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.924 2.065-2.064 2.065zM6.914 20.452H3.759V9h3.155v11.452zM22.225 0H1.771C.792 0 0 .771 0 1.723v20.554C0 23.229.792 24 1.771 24h20.451C23.2 24 24 23.229 24 22.277V1.723C24 .771 23.2 0 22.225 0z" />
+                    </svg></a>
+                <a href="https://www.youtube.com/@Whiteinkdesignstudio" title="YouTube" target="_blank"><svg
+                        viewBox="0 0 24 24">
+                        <path
+                            d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+                    </svg></a>
+            </div>
+        </div>
+        <div class="foot-col">
+            <h5>Platform</h5><a href="#">How It Works</a><a href="#">Pricing</a><a href="#">Enterprise</a>
+        </div>
+        <div class="foot-col">
+            <h5>Navigate</h5><a href="index.html">Home</a><a href="categories.html">Categories</a><a
+                href="about.html">About</a><a href="why-ai.html">Why AI</a><a href="work.html">Work</a><a
+                href="faq.html">FAQ</a>
+        </div>
+        <div class="foot-col">
+            <h5>Contact</h5><a href="mailto:Connect@whiteinkdesignstudio.com">Connect@whiteinkdesignstudio.com</a><a
+                href="https://www.whiteinkdesignstudio.com/" target="_blank">whiteinkdesignstudio.com</a><a
+                href="https://wa.link/ma8ri7" target="_blank">+91 93135 09116</a>
+            <p style="font-size:0.78rem;color:rgba(255,255,255,0.3);margin-top:6px">302, Mithakhali, Ahmedabad – 380009
+            </p>
+        </div>
+    </footer>
+    <div class="foot-bot">
+        <p>&copy; 2026 w'ink ai. All rights reserved.</p>
+        <p style="color:var(--gold);letter-spacing:0.2em;font-size:0.68rem">MADE IN INDIA &#10022; FOR THE WORLD</p>
+    </div>
+
+    <script>
+        const dot = document.getElementById('cursorDot'), ring = document.getElementById('cursorRing');
+        let mx = 0, my = 0, rx = 0, ry = 0;
+        document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; dot.style.left = mx + 'px'; dot.style.top = my + 'px'; });
+        (function loop() { rx += (mx - rx) * 0.12; ry += (my - ry) * 0.12; ring.style.left = rx + 'px'; ring.style.top = ry + 'px'; requestAnimationFrame(loop); })();
+        window.addEventListener('load', () => { setTimeout(() => document.getElementById('loader').classList.add('hidden'), 1500); });
+        const hdr = document.getElementById('hdr');
+        window.addEventListener('scroll', () => { hdr.classList.toggle('scrolled', scrollY > 50); document.getElementById('stBtn').classList.toggle('visible', scrollY > 400); });
+        document.querySelectorAll('.reveal').forEach(el => { new IntersectionObserver(en => { en.forEach(e => { if (e.isIntersecting) el.classList.add('visible'); }); }, { threshold: 0.1 }).observe(el); });
+        function toggleMenu() {
+            const ham = document.getElementById('hamburger'), nav = document.getElementById('mobileNav'), overlay = document.getElementById('mobileOverlay');
+            ham.classList.toggle('open'); nav.classList.toggle('open'); overlay.classList.toggle('open');
+            document.body.style.overflow = nav.classList.contains('open') ? 'hidden' : '';
+        }
+        document.querySelectorAll('.mobile-nav a').forEach(link => { link.addEventListener('click', () => { document.getElementById('hamburger').classList.remove('open'); document.getElementById('mobileNav').classList.remove('open'); document.getElementById('mobileOverlay').classList.remove('open'); document.body.style.overflow = ''; }); });
+    </script>
+</body>
+
+</html>
